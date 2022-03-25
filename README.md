@@ -78,8 +78,6 @@ Number of Transformer blocks.
 Number of heads in Multi-head Attention layer. 
 - `mlp_dim`: int.  
 Dimension of the MLP (FeedForward) layer. 
-- `channels`: int, default `3`.  
-Number of image's channels. 
 - `dropout`: float between `[0, 1]`, default `0.`.  
 Dropout rate. 
 - `emb_dropout`: float between `[0, 1]`, default `0`.  
