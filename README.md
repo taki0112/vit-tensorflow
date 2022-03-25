@@ -5,9 +5,6 @@
 ## Author
 [Junho Kim](http://bit.ly/jhkim_resume)
 
-## Reference
- * [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
-
 ## Table of Contents
 - [Vision Transformer - Tensorflow](#vision-transformer---tensorflow)
 - [Usage](#usage)
@@ -36,6 +33,7 @@
 - [Parallel ViT](#parallel-vit)
 - [FAQ](#faq)
 - [Resources](#resources)
+- [Reference](#reference)
 
 ## Vision Transformer - Tensorflow
 Implementation of <a href="https://openreview.net/pdf?id=YicbFdNTTy">Vision Transformer</a>, a simple way to achieve SOTA in vision classification with only a single transformer encoder, in Tensorflow. Significance is further explained in <a href="https://www.youtube.com/watch?v=TrdevFK_am4">Yannic Kilcher's</a> video. There's really not much to code here, but may as well lay it out for everyone so we expedite the attention revolution.
@@ -923,3 +921,6 @@ Coming from computer vision and new to transformers? Here are some resources tha
 2. <a href="http://peterbloem.nl/blog/transformers">Transformers from Scratch</a>  - Peter Bloem
 
 3. <a href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">The Annotated Transformer</a> - Harvard NLP
+
+## Reference
+ * [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
