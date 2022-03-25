@@ -95,7 +95,6 @@ ex. distilling from Resnet50 (or any teacher) to a vision transformer
 
 ```python
 import tensorflow as tf
-
 from vit_tensorflow.distill import DistillableViT, DistillWrapper
 
 teacher = tf.keras.applications.resnet50.ResNet50()
