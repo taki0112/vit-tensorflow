@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [Vision Transformer - Pytorch](#vision-transformer---pytorch)
+- [Vision Transformer - Tensorflow](#vision-transformer---tensorflow)
 - [Install](#install)
 - [Usage](#usage)
 - [Parameters](#parameters)
