@@ -7,8 +7,6 @@
  * [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
 
 ## Table of Contents
-- [Author](#author)
-- [Reference](#reference)
 - [Vision Transformer - Tensorflow](#vision-transformer---tensorflow)
 - [Usage](#usage)
 - [Parameters](#parameters)
