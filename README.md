@@ -923,5 +923,5 @@ Coming from computer vision and new to transformers? Here are some resources tha
 3. <a href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">The Annotated Transformer</a> - Harvard NLP
 
 ## Reference
-I really appreciateto [@lucidrains](https://github.com/lucidrains) for his permission to release this repository.
+Appreciate to [@lucidrains](https://github.com/lucidrains) for his permission to release this repository.
  * [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
