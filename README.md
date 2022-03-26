@@ -5,7 +5,7 @@
 ## Author
 * [Junho Kim](http://bit.ly/jhkim_resume)
 
-### Thanks to
+### Acknowledgement
 * Appreciate to [@lucidrains](https://github.com/lucidrains) for his permission to release this repository.
 
 ## Table of Contents
