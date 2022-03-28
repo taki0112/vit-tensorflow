@@ -39,8 +39,8 @@ Implementation of <a href="https://openreview.net/pdf?id=YicbFdNTTy">Vision Tran
 ## Usage
 
 ```python
-import torch
-from vit_pytorch import ViT
+import tensorflow as tf
+from vit_tensorflow import ViT
 
 v = ViT(
     image_size = 256,
@@ -54,7 +54,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(1, 3, 256, 256)
+img = tf.random.normal([1, 256, 256, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -94,12 +94,11 @@ A recent <a href="https://arxiv.org/abs/2012.12877">paper</a> has shown that use
 ex. distilling from Resnet50 (or any teacher) to a vision transformer
 
 ```python
-import torch
-from torchvision.models import resnet50
+import tensorflow as tf
 
-from vit_pytorch.distill import DistillableViT, DistillWrapper
+from vit_tensorflow.distill import DistillableViT, DistillWrapper
 
-teacher = resnet50(pretrained = True)
+teacher = tf.keras.applications.resnet50.ResNet50()
 
 v = DistillableViT(
     image_size = 256,
@@ -121,24 +120,15 @@ distiller = DistillWrapper(
     hard = False               # whether to use soft or hard distillation
 )
 
-img = torch.randn(2, 3, 256, 256)
-labels = torch.randint(0, 1000, (2,))
+img = tf.random.normal([2, 256, 256, 3])
+labels = tf.random.uniform(shape=[2, ], minval=0, maxval=1000, dtype=tf.int32)
+labels = tf.one_hot(labels, depth=1000, axis=-1)
 
 loss = distiller(img, labels)
-loss.backward()
 
 # after lots of training above ...
 
 pred = v(img) # (2, 1000)
-```
-
-The `DistillableViT` class is identical to `ViT` except for how the forward pass is handled, so you should be able to load the parameters back to `ViT` after you have completed distillation training.
-
-You can also use the handy `.to_vit` method on the `DistillableViT` instance to get back a `ViT` instance.
-
-```python
-v = v.to_vit()
-type(v) # <class 'vit_pytorch.vit_pytorch.ViT'>
 ```
 
 
@@ -149,8 +139,8 @@ This <a href="https://arxiv.org/abs/2103.11886">paper</a> notes that ViT struggl
 You can use it as follows
 
 ```python
-import torch
-from vit_pytorch.deepvit import DeepViT
+import tensorflow as tf
+from vit_tensorflow.deepvit import DeepViT
 
 v = DeepViT(
     image_size = 256,
@@ -164,7 +154,7 @@ v = DeepViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(1, 3, 256, 256)
+img = tf.random.normal([1, 256, 256, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -178,8 +168,8 @@ They also add <a href="https://github.com/lucidrains/x-transformers#talking-head
 You can use this scheme as follows
 
 ```python
-import torch
-from vit_pytorch.cait import CaiT
+import tensorflow as tf
+from vit_tensorflow.cait import CaiT
 
 v = CaiT(
     image_size = 256,
@@ -195,7 +185,7 @@ v = CaiT(
     layer_dropout = 0.05    # randomly dropout 5% of the layers
 )
 
-img = torch.randn(1, 3, 256, 256)
+img = tf.random.normal([1, 256, 256, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -207,8 +197,8 @@ preds = v(img) # (1, 1000)
 <a href="https://arxiv.org/abs/2101.11986">This paper</a> proposes that the first couple layers should downsample the image sequence by unfolding, leading to overlapping image data in each token as shown in the figure above. You can use this variant of the `ViT` as follows.
 
 ```python
-import torch
-from vit_pytorch.t2t import T2TViT
+import tensorflow as tf
+from vit_tensorflow.t2t import T2TViT
 
 v = T2TViT(
     dim = 512,
@@ -220,7 +210,7 @@ v = T2TViT(
     t2t_layers = ((7, 4), (3, 2), (3, 2)) # tuples of the kernel size and stride of each consecutive layers of the initial token to token module
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -235,8 +225,8 @@ allows for CCT to have high accuracy and a low number of parameters.
 
 You can use this with two methods
 ```python
-import torch
-from vit_pytorch.cct import CCT
+import tensorflow as tf
+from vit_tensorflow.cct import CCT
 
 model = CCT(
         img_size=224,
@@ -261,8 +251,8 @@ which pre-define the number of layers, number of attention heads, the mlp ratio,
 and the embedding dimension.
 
 ```python
-import torch
-from vit_pytorch.cct import cct_14
+import tensorflow as tf
+from vit_tensorflow.cct import cct_14
 
 model = cct_14(
         img_size=224,
@@ -288,8 +278,8 @@ Repository</a> includes links to pretrained model checkpoints.
 <a href="https://arxiv.org/abs/2103.14899">This paper</a> proposes to have two vision transformers processing the image at different scales, cross attending to one every so often. They show improvements on top of the base vision transformer.
 
 ```python
-import torch
-from vit_pytorch.cross_vit import CrossViT
+import tensorflow as tf
+from vit_tensorflow.cross_vit import CrossViT
 
 v = CrossViT(
     image_size = 256,
@@ -311,7 +301,7 @@ v = CrossViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(1, 3, 256, 256)
+img = tf.random.normal([1, 256, 256, 3])
 
 pred = v(img) # (1, 1000)
 ```
@@ -323,8 +313,8 @@ pred = v(img) # (1, 1000)
 <a href="https://arxiv.org/abs/2103.16302">This paper</a> proposes to downsample the tokens through a pooling procedure using depth-wise convolutions.
 
 ```python
-import torch
-from vit_pytorch.pit import PiT
+import tensorflow as tf
+from vit_tensorflow.pit import PiT
 
 v = PiT(
     image_size = 224,
@@ -340,7 +330,7 @@ v = PiT(
 
 # forward pass now returns predictions and the attention maps
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -354,8 +344,8 @@ preds = v(img) # (1, 1000)
 <a href="https://github.com/facebookresearch/LeViT">Official repository</a>
 
 ```python
-import torch
-from vit_pytorch.levit import LeViT
+import tensorflow as tf
+from vit_tensorflow.levit import LeViT
 
 levit = LeViT(
     image_size = 224,
@@ -368,7 +358,7 @@ levit = LeViT(
     dropout = 0.1
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 levit(img) # (1, 1000)
 ```
@@ -380,8 +370,8 @@ levit(img) # (1, 1000)
 <a href="https://arxiv.org/abs/2103.15808">This paper</a> proposes mixing convolutions and attention. Specifically, convolutions are used to embed and downsample the image / feature map in three stages. Depthwise-convoltion is also used to project the queries, keys, and values for attention.
 
 ```python
-import torch
-from vit_pytorch.cvt import CvT
+import tensorflow as tf
+from vit_tensorflow.cvt import CvT
 
 v = CvT(
     num_classes = 1000,
@@ -412,7 +402,7 @@ v = CvT(
     dropout = 0.
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 pred = v(img) # (1, 1000)
 ```
@@ -424,8 +414,8 @@ pred = v(img) # (1, 1000)
 This <a href="https://arxiv.org/abs/2104.13840">paper</a> proposes mixing local and global attention, along with position encoding generator (proposed in <a href="https://arxiv.org/abs/2102.10882">CPVT</a>) and global average pooling, to achieve the same results as <a href="https://arxiv.org/abs/2103.14030">Swin</a>, without the extra complexity of shifted windows, CLS tokens, nor positional embeddings.
 
 ```python
-import torch
-from vit_pytorch.twins_svt import TwinsSVT
+import tensorflow as tf
+from vit_tensorflow.twins_svt import TwinsSVT
 
 model = TwinsSVT(
     num_classes = 1000,       # number of output classes
@@ -453,7 +443,7 @@ model = TwinsSVT(
     dropout = 0.              # dropout
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 pred = model(img) # (1, 1000)
 ```
@@ -469,8 +459,8 @@ pred = model(img) # (1, 1000)
 You can use it as follows
 
 ```python
-import torch
-from vit_pytorch.regionvit import RegionViT
+import tensorflow as tf
+from vit_tensorflow.regionvit import RegionViT
 
 model = RegionViT(
     dim = (64, 128, 256, 512),      # tuple of size 4, indicating dimension at each stage
@@ -481,7 +471,7 @@ model = RegionViT(
     use_peg = False,                # whether to use positional generating module. they used this for object detection for a boost in performance
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 pred = model(img) # (1, 1000)
 ```
@@ -497,8 +487,8 @@ This <a href="https://arxiv.org/abs/2108.00154">paper</a> beats PVT and Swin usi
 They also have cross-scale embedding layer, which they shown to be a generic layer that can improve all vision transformers. Dynamic relative positional bias was also formulated to allow the net to generalize to images of greater resolution.
 
 ```python
-import torch
-from vit_pytorch.crossformer import CrossFormer
+import tensorflow as tf
+from vit_tensorflow.crossformer import CrossFormer
 
 model = CrossFormer(
     num_classes = 1000,                # number of output classes
@@ -508,7 +498,7 @@ model = CrossFormer(
     local_window_size = 7,             # local window size (can be customized for each stage, but in paper, held constant at 7 for all stages)
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 pred = model(img) # (1, 1000)
 ```
@@ -526,8 +516,8 @@ They make the claim in this paper that this scheme outperforms Swin Transformer,
 You can use it as follows (ex. ScalableViT-S)
 
 ```python
-import torch
-from vit_pytorch.scalable_vit import ScalableViT
+import tensorflow as tf
+from vit_tensorflow.scalable_vit import ScalableViT
 
 model = ScalableViT(
     num_classes = 1000,
@@ -538,9 +528,9 @@ model = ScalableViT(
     reduction_factor = (8, 4, 2, 1),        # downsampling of the key / values in SSA. in the paper, this was represented as (reduction_factor ** -2)
     window_size = (64, 32, None, None),     # window size of the IWSA at each stage. None means no windowing needed
     dropout = 0.1,                          # attention and feedforward dropout
-).cuda()
+)
 
-img = torch.randn(1, 3, 256, 256).cuda()
+img = tf.random.normal([1, 256, 256, 3])
 
 preds = model(img) # (1, 1000)
 ```
@@ -554,8 +544,8 @@ This <a href="https://arxiv.org/abs/2105.12723">paper</a> decided to process the
 You can use it with the following code (ex. NesT-T)
 
 ```python
-import torch
-from vit_pytorch.nest import NesT
+import tensorflow as tf
+from vit_tensorflow.nest import NesT
 
 nest = NesT(
     image_size = 224,
@@ -567,7 +557,7 @@ nest = NesT(
     num_classes = 1000
 )
 
-img = torch.randn(1, 3, 224, 224)
+img = tf.random.normal([1, 224, 224, 3])
 
 pred = nest(img) # (1, 1000)
 ```
@@ -582,8 +572,8 @@ perspective for the global processing of information with transformers.
 You can use it with the following code (ex. mobilevit_xs)
 
 ```python
-import torch
-from vit_pytorch.mobile_vit import MobileViT
+import tensorflow as tf
+from vit_tensorflow.mobile_vit import MobileViT
 
 mbvit_xs = MobileViT(
     image_size = (256, 256),
@@ -592,7 +582,7 @@ mbvit_xs = MobileViT(
     num_classes = 1000
 )
 
-img = torch.randn(1, 3, 256, 256)
+img = tf.random.normal([1, 256, 256, 3])
 
 pred = mbvit_xs(img) # (1, 1000)
 ```
@@ -606,9 +596,9 @@ This <a href="https://arxiv.org/abs/2111.09886">paper</a> proposes a simple mask
 You can use this as follows
 
 ```python
-import torch
-from vit_pytorch import ViT
-from vit_pytorch.simmim import SimMIM
+import tensorflow as tf
+from vit_tensorflow import ViT
+from vit_tensorflow.simmim import SimMIM
 
 v = ViT(
     image_size = 256,
@@ -625,15 +615,13 @@ mim = SimMIM(
     masking_ratio = 0.5  # they found 50% to yield the best results
 )
 
-images = torch.randn(8, 3, 256, 256)
+images = tf.random.normal([8, 256, 256, 3])
 
 loss = mim(images)
-loss.backward()
 
 # that's all!
 # do the above in a for loop many times with a lot of images and your vision transformer will learn
 
-torch.save(v.state_dict(), './trained-vit.pt')
 ```
 
 
@@ -650,8 +638,8 @@ A new <a href="https://arxiv.org/abs/2111.06377">Kaiming He paper</a> proposes a
 You can use it with the following code
 
 ```python
-import torch
-from vit_pytorch import ViT, MAE
+import tensorflow as tf
+from vit_tensorflow import ViT, MAE
 
 v = ViT(
     image_size = 256,
@@ -670,16 +658,13 @@ mae = MAE(
     decoder_depth = 6       # anywhere from 1 to 8
 )
 
-images = torch.randn(8, 3, 256, 256)
+images = tf.random.normal([8, 256, 256, 3])
 
 loss = mae(images)
-loss.backward()
 
 # that's all!
 # do the above in a for loop many times with a lot of images and your vision transformer will learn
 
-# save your improved vision transformer
-torch.save(v.state_dict(), './trained-vit.pt')
 ```
 
 ## Masked Patch Prediction
@@ -687,9 +672,9 @@ torch.save(v.state_dict(), './trained-vit.pt')
 Thanks to <a href="https://github.com/zankner">Zach</a>, you can train using the original masked patch prediction task presented in the paper, with the following code.
 
 ```python
-import torch
-from vit_pytorch import ViT
-from vit_pytorch.mpp import MPP
+import tensorflow as tf
+from vit_tensorflow import ViT
+from vit_tensorflow.mpp import MPP
 
 model = ViT(
     image_size=256,
@@ -712,20 +697,13 @@ mpp_trainer = MPP(
     replace_prob=0.50,       # probability of replacing a token being used for mpp with the mask token
 )
 
-opt = torch.optim.Adam(mpp_trainer.parameters(), lr=3e-4)
-
 def sample_unlabelled_images():
-    return torch.FloatTensor(20, 3, 256, 256).uniform_(0., 1.)
+    return tf.random.normal([20, 256, 256, 3])
 
 for _ in range(100):
-    images = sample_unlabelled_images()
-    loss = mpp_trainer(images)
-    opt.zero_grad()
-    loss.backward()
-    opt.step()
-
-# save your improved network
-torch.save(model.state_dict(), './pretrained-net.pt')
+    with tf.GradientTape() as tape:
+        images = sample_unlabelled_images()
+        loss = mpp_trainer(images)
 ```
 
 ## Adaptive Token Sampling
@@ -735,8 +713,8 @@ torch.save(model.state_dict(), './pretrained-net.pt')
 This <a href="https://arxiv.org/abs/2111.15667">paper</a> proposes to use the CLS attention scores, re-weighed by the norms of the value heads, as means to discard unimportant tokens at different layers.
 
 ```python
-import torch
-from vit_pytorch.ats_vit import ViT
+import tensorflow as tf
+from vit_tensorflow.ats_vit import ViT
 
 v = ViT(
     image_size = 256,
@@ -751,7 +729,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(4, 3, 256, 256)
+img = tf.random.normal([4, 256, 256, 3])
 
 preds = v(img) # (4, 1000)
 
@@ -769,8 +747,8 @@ preds, token_ids = v(img, return_sampled_token_ids = True) # (4, 1000), (4, <=8)
 This <a href="https://arxiv.org/abs/2202.12015">paper</a> proposes a simple module (Patch Merger) for reducing the number of tokens at any layer of a vision transformer without sacrificing performance.
 
 ```python
-import torch
-from vit_pytorch.vit_with_patch_merger import ViT
+import tensorflow as tf
+from vit_tensorflow.vit_with_patch_merger import ViT
 
 v = ViT(
     image_size = 256,
@@ -786,7 +764,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(4, 3, 256, 256)
+img = tf.random.normal([4, 256, 256, 3])
 
 preds = v(img) # (4, 1000)
 ```
@@ -794,15 +772,15 @@ preds = v(img) # (4, 1000)
 One can also use the `PatchMerger` module by itself
 
 ```python
-import torch
-from vit_pytorch.vit_with_patch_merger import PatchMerger
+import tensorflow as tf
+from vit_tensorflow.vit_with_patch_merger import PatchMerger
 
 merger = PatchMerger(
     dim = 1024,
     num_tokens_out = 8   # output number of tokens
 )
 
-features = torch.randn(4, 256, 1024) # (batch, num tokens, dimension)
+features = tf.random.normal([4, 256, 1024]) # (batch, num tokens, dimension)
 
 out = merger(features) # (4, 8, 1024)
 ```
@@ -816,8 +794,8 @@ This <a href="https://arxiv.org/abs/2112.13492">paper</a> proposes a new image t
 You can use as follows:
 
 ```python
-import torch
-from vit_pytorch.vit_for_small_dataset import ViT
+import tensorflow as tf
+from vit_tensorflow.vit_for_small_dataset import ViT
 
 v = ViT(
     image_size = 256,
@@ -831,7 +809,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(4, 3, 256, 256)
+img = tf.random.normal([4, 256, 256, 3])
 
 preds = v(img) # (1, 1000)
 ```
@@ -839,8 +817,8 @@ preds = v(img) # (1, 1000)
 You can also use the `SPT` from this paper as a standalone module
 
 ```python
-import torch
-from vit_pytorch.vit_for_small_dataset import SPT
+import tensorflow as tf
+from vit_tensorflow.vit_for_small_dataset import SPT
 
 spt = SPT(
     dim = 1024,
@@ -848,7 +826,7 @@ spt = SPT(
     channels = 3
 )
 
-img = torch.randn(4, 3, 256, 256)
+img = tf.random.normal([4, 256, 256, 3])
 
 tokens = spt(img) # (4, 256, 1024)
 ```
@@ -862,8 +840,8 @@ This <a href="https://arxiv.org/abs/2203.09795">paper</a> propose parallelizing 
 You can try this variant as follows
 
 ```python
-import torch
-from vit_pytorch.parallel_vit import ViT
+import tensorflow as tf
+from vit_tensorflow.parallel_vit import ViT
 
 v = ViT(
     image_size = 256,
@@ -878,7 +856,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(4, 3, 256, 256)
+img = tf.random.normal([4, 256, 256, 3])
 
 preds = v(img) # (4, 1000)
 ```
@@ -892,8 +870,8 @@ You can already pass in non-square images - you just have to make sure your heig
 ex.
 
 ```python
-import torch
-from vit_pytorch import ViT
+import tensorflow as tf
+from vit_tensorflow import ViT
 
 v = ViT(
     image_size = 256,
@@ -907,7 +885,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(1, 3, 256, 128) # <-- not a square
+img = tf.random.normal([1, 256, 128, 3]) # <-- not a square
 
 preds = v(img) # (1, 1000)
 ```
@@ -915,8 +893,8 @@ preds = v(img) # (1, 1000)
 - How do I pass in non-square patches?
 
 ```python
-import torch
-from vit_pytorch import ViT
+import tensorflow as tf
+from vit_tensorflow import ViT
 
 v = ViT(
     num_classes = 1000,
@@ -930,7 +908,7 @@ v = ViT(
     emb_dropout = 0.1
 )
 
-img = torch.randn(1, 3, 256, 128)
+img = tf.random.normal([1, 256, 128, 3])
 
 preds = v(img)
 ```
