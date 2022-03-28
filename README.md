@@ -1,9 +1,15 @@
+# Vision Transformer Cookbook with Tensorflow
 <img src="./images/vit.gif" width="500px"></img>
 
-## Table of Contents
+### 🔥 Code will be released at 2022.03.28 🔥
+## Author
+* [Junho Kim](http://bit.ly/jhkim_resume)
 
+### Acknowledgement
+* Appreciate to [@lucidrains](https://github.com/lucidrains) for his permission to release this repository.
+
+## Table of Contents
 - [Vision Transformer - Tensorflow](#vision-transformer---tensorflow)
-- [Install](#install)
 - [Usage](#usage)
 - [Parameters](#parameters)
 - [Distillation](#distillation)
@@ -30,10 +36,9 @@
 - [Parallel ViT](#parallel-vit)
 - [FAQ](#faq)
 - [Resources](#resources)
-- [Citations](#citations)
+- [Reference](#reference)
 
-## Vision Transformer - Tensorflow
-
+## Vision Transformer - Tensorflow ( >= 2.3.0)
 Implementation of <a href="https://openreview.net/pdf?id=YicbFdNTTy">Vision Transformer</a>, a simple way to achieve SOTA in vision classification with only a single transformer encoder, in Tensorflow. Significance is further explained in <a href="https://www.youtube.com/watch?v=TrdevFK_am4">Yannic Kilcher's</a> video. There's really not much to code here, but may as well lay it out for everyone so we expedite the attention revolution.
 
 ## Usage
@@ -76,8 +81,6 @@ Number of Transformer blocks.
 Number of heads in Multi-head Attention layer. 
 - `mlp_dim`: int.  
 Dimension of the MLP (FeedForward) layer. 
-- `channels`: int, default `3`.  
-Number of image's channels. 
 - `dropout`: float between `[0, 1]`, default `0.`.  
 Dropout rate. 
 - `emb_dropout`: float between `[0, 1]`, default `0`.  
@@ -95,7 +98,10 @@ ex. distilling from Resnet50 (or any teacher) to a vision transformer
 
 ```python
 import tensorflow as tf
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4d94a87a458fa952a88f56d1e188eef5524a895a
 from vit_tensorflow.distill import DistillableViT, DistillWrapper
 
 teacher = tf.keras.applications.resnet50.ResNet50()
@@ -228,6 +234,7 @@ You can use this with two methods
 import tensorflow as tf
 from vit_tensorflow.cct import CCT
 
+<<<<<<< HEAD
 model = CCT(
         img_size=224,
         embedding_dim=384,
@@ -244,6 +251,28 @@ model = CCT(
         num_classes=1000,
         positional_embedding='learnable', # ['sine', 'learnable', 'none']
         )
+=======
+cct = CCT(
+    img_size = (224, 448),
+    embedding_dim = 384,
+    n_conv_layers = 2,
+    kernel_size = 7,
+    stride = 2,
+    padding = 3,
+    pooling_kernel_size = 3,
+    pooling_stride = 2,
+    pooling_padding = 1,
+    num_layers = 14,
+    num_heads = 6,
+    mlp_radio = 3.,
+    num_classes = 1000,
+    positional_embedding = 'learnable', # ['sine', 'learnable', 'none']
+)
+
+img = tf.random.normal(shape=[1, 224, 448, 3])
+preds = cct(img) # (1, 1000)
+
+>>>>>>> 4d94a87a458fa952a88f56d1e188eef5524a895a
 ```
 
 Alternatively you can use one of several pre-defined models `[2,4,6,7,8,14,16]`
@@ -254,6 +283,7 @@ and the embedding dimension.
 import tensorflow as tf
 from vit_tensorflow.cct import cct_14
 
+<<<<<<< HEAD
 model = cct_14(
         img_size=224,
         n_conv_layers=1,
@@ -266,6 +296,20 @@ model = cct_14(
         num_classes=1000,
         positional_embedding='learnable', # ['sine', 'learnable', 'none']  
         )
+=======
+cct = cct_14(
+    img_size = 224,
+    n_conv_layers = 1,
+    kernel_size = 7,
+    stride = 2,
+    padding = 3,
+    pooling_kernel_size = 3,
+    pooling_stride = 2,
+    pooling_padding = 1,
+    num_classes = 1000,
+    positional_embedding = 'learnable', # ['sine', 'learnable', 'none']
+)
+>>>>>>> 4d94a87a458fa952a88f56d1e188eef5524a895a
 ```
 <a href="https://github.com/SHI-Labs/Compact-Transformers">Official
 Repository</a> includes links to pretrained model checkpoints.
@@ -923,288 +967,5 @@ Coming from computer vision and new to transformers? Here are some resources tha
 
 3. <a href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">The Annotated Transformer</a> - Harvard NLP
 
-
-## Citations
-```bibtex
-@article{hassani2021escaping,
-    title   = {Escaping the Big Data Paradigm with Compact Transformers},
-    author  = {Ali Hassani and Steven Walton and Nikhil Shah and Abulikemu Abuduweili and Jiachen Li and Humphrey Shi},
-    year    = 2021,
-    url     = {https://arxiv.org/abs/2104.05704},
-    eprint  = {2104.05704},
-    archiveprefix = {arXiv},
-    primaryclass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{dosovitskiy2020image,
-    title   = {An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale},
-    author  = {Alexey Dosovitskiy and Lucas Beyer and Alexander Kolesnikov and Dirk Weissenborn and Xiaohua Zhai and Thomas Unterthiner and Mostafa Dehghani and Matthias Minderer and Georg Heigold and Sylvain Gelly and Jakob Uszkoreit and Neil Houlsby},
-    year    = {2020},
-    eprint  = {2010.11929},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{touvron2020training,
-    title   = {Training data-efficient image transformers & distillation through attention}, 
-    author  = {Hugo Touvron and Matthieu Cord and Matthijs Douze and Francisco Massa and Alexandre Sablayrolles and Hervé Jégou},
-    year    = {2020},
-    eprint  = {2012.12877},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{yuan2021tokenstotoken,
-    title   = {Tokens-to-Token ViT: Training Vision Transformers from Scratch on ImageNet},
-    author  = {Li Yuan and Yunpeng Chen and Tao Wang and Weihao Yu and Yujun Shi and Francis EH Tay and Jiashi Feng and Shuicheng Yan},
-    year    = {2021},
-    eprint  = {2101.11986},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{zhou2021deepvit,
-    title   = {DeepViT: Towards Deeper Vision Transformer},
-    author  = {Daquan Zhou and Bingyi Kang and Xiaojie Jin and Linjie Yang and Xiaochen Lian and Qibin Hou and Jiashi Feng},
-    year    = {2021},
-    eprint  = {2103.11886},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{touvron2021going,
-    title   = {Going deeper with Image Transformers}, 
-    author  = {Hugo Touvron and Matthieu Cord and Alexandre Sablayrolles and Gabriel Synnaeve and Hervé Jégou},
-    year    = {2021},
-    eprint  = {2103.17239},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{chen2021crossvit,
-    title   = {CrossViT: Cross-Attention Multi-Scale Vision Transformer for Image Classification},
-    author  = {Chun-Fu Chen and Quanfu Fan and Rameswar Panda},
-    year    = {2021},
-    eprint  = {2103.14899},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{wu2021cvt,
-    title   = {CvT: Introducing Convolutions to Vision Transformers},
-    author  = {Haiping Wu and Bin Xiao and Noel Codella and Mengchen Liu and Xiyang Dai and Lu Yuan and Lei Zhang},
-    year    = {2021},
-    eprint  = {2103.15808},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{heo2021rethinking,
-    title   = {Rethinking Spatial Dimensions of Vision Transformers}, 
-    author  = {Byeongho Heo and Sangdoo Yun and Dongyoon Han and Sanghyuk Chun and Junsuk Choe and Seong Joon Oh},
-    year    = {2021},
-    eprint  = {2103.16302},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{graham2021levit,
-    title   = {LeViT: a Vision Transformer in ConvNet's Clothing for Faster Inference},
-    author  = {Ben Graham and Alaaeldin El-Nouby and Hugo Touvron and Pierre Stock and Armand Joulin and Hervé Jégou and Matthijs Douze},
-    year    = {2021},
-    eprint  = {2104.01136},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{li2021localvit,
-    title   = {LocalViT: Bringing Locality to Vision Transformers},
-    author  = {Yawei Li and Kai Zhang and Jiezhang Cao and Radu Timofte and Luc Van Gool},
-    year    = {2021},
-    eprint  = {2104.05707},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{chu2021twins,
-    title   = {Twins: Revisiting Spatial Attention Design in Vision Transformers},
-    author  = {Xiangxiang Chu and Zhi Tian and Yuqing Wang and Bo Zhang and Haibing Ren and Xiaolin Wei and Huaxia Xia and Chunhua Shen},
-    year    = {2021},
-    eprint  = {2104.13840},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{su2021roformer,
-    title   = {RoFormer: Enhanced Transformer with Rotary Position Embedding}, 
-    author  = {Jianlin Su and Yu Lu and Shengfeng Pan and Bo Wen and Yunfeng Liu},
-    year    = {2021},
-    eprint  = {2104.09864},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CL}
-}
-```
-
-```bibtex
-@misc{zhang2021aggregating,
-    title   = {Aggregating Nested Transformers},
-    author  = {Zizhao Zhang and Han Zhang and Long Zhao and Ting Chen and Tomas Pfister},
-    year    = {2021},
-    eprint  = {2105.12723},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{chen2021regionvit,
-    title   = {RegionViT: Regional-to-Local Attention for Vision Transformers}, 
-    author  = {Chun-Fu Chen and Rameswar Panda and Quanfu Fan},
-    year    = {2021},
-    eprint  = {2106.02689},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{wang2021crossformer,
-    title   = {CrossFormer: A Versatile Vision Transformer Hinging on Cross-scale Attention}, 
-    author  = {Wenxiao Wang and Lu Yao and Long Chen and Binbin Lin and Deng Cai and Xiaofei He and Wei Liu},
-    year    = {2021},
-    eprint  = {2108.00154},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{caron2021emerging,
-    title   = {Emerging Properties in Self-Supervised Vision Transformers},
-    author  = {Mathilde Caron and Hugo Touvron and Ishan Misra and Hervé Jégou and Julien Mairal and Piotr Bojanowski and Armand Joulin},
-    year    = {2021},
-    eprint  = {2104.14294},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{he2021masked,
-    title   = {Masked Autoencoders Are Scalable Vision Learners}, 
-    author  = {Kaiming He and Xinlei Chen and Saining Xie and Yanghao Li and Piotr Dollár and Ross Girshick},
-    year    = {2021},
-    eprint  = {2111.06377},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{xie2021simmim,
-    title   = {SimMIM: A Simple Framework for Masked Image Modeling}, 
-    author  = {Zhenda Xie and Zheng Zhang and Yue Cao and Yutong Lin and Jianmin Bao and Zhuliang Yao and Qi Dai and Han Hu},
-    year    = {2021},
-    eprint  = {2111.09886},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{fayyaz2021ats,
-    title   = {ATS: Adaptive Token Sampling For Efficient Vision Transformers},
-    author  = {Mohsen Fayyaz and Soroush Abbasi Kouhpayegani and Farnoush Rezaei Jafari and Eric Sommerlade and Hamid Reza Vaezi Joze and Hamed Pirsiavash and Juergen Gall},
-    year    = {2021},
-    eprint  = {2111.15667},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{mehta2021mobilevit,
-    title   = {MobileViT: Light-weight, General-purpose, and Mobile-friendly Vision Transformer},
-    author  = {Sachin Mehta and Mohammad Rastegari},
-    year    = {2021},
-    eprint  = {2110.02178},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{lee2021vision,
-    title   = {Vision Transformer for Small-Size Datasets}, 
-    author  = {Seung Hoon Lee and Seunghyun Lee and Byung Cheol Song},
-    year    = {2021},
-    eprint  = {2112.13492},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{renggli2022learning,
-    title   = {Learning to Merge Tokens in Vision Transformers},
-    author  = {Cedric Renggli and André Susano Pinto and Neil Houlsby and Basil Mustafa and Joan Puigcerver and Carlos Riquelme},
-    year    = {2022},
-    eprint  = {2202.12015},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@misc{yang2022scalablevit,
-    title   = {ScalableViT: Rethinking the Context-oriented Generalization of Vision Transformer}, 
-    author  = {Rui Yang and Hailong Ma and Jie Wu and Yansong Tang and Xuefeng Xiao and Min Zheng and Xiu Li},
-    year    = {2022},
-    eprint  = {2203.10790},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@inproceedings{Touvron2022ThreeTE,
-    title   = {Three things everyone should know about Vision Transformers},
-    author  = {Hugo Touvron and Matthieu Cord and Alaaeldin El-Nouby and Jakob Verbeek and Herv'e J'egou},
-    year    = {2022}
-}
-```
-
-```bibtex
-@misc{vaswani2017attention,
-    title   = {Attention Is All You Need},
-    author  = {Ashish Vaswani and Noam Shazeer and Niki Parmar and Jakob Uszkoreit and Llion Jones and Aidan N. Gomez and Lukasz Kaiser and Illia Polosukhin},
-    year    = {2017},
-    eprint  = {1706.03762},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CL}
-}
-```
+## Reference
+ * [vit-pytorch](https://github.com/lucidrains/vit-pytorch)
