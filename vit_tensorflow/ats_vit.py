@@ -1,15 +1,13 @@
+import numpy as np
+
 import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Layer
-from tensorflow.keras import Sequential
-import tensorflow.keras.layers as nn
-from tensorflow import einsum
+from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 from einops import rearrange, repeat
 from einops.layers.tensorflow import Rearrange
 
-import numpy as np
+
 
 def exists(val):
     return val is not None
@@ -68,7 +66,8 @@ def batched_index_select(values, indices, dim = 1):
     values = torch_gather(values, indices, dim)
     return values
 
-class AdaptiveTokenSampling(Layer):
+
+class AdaptiveTokenSampling(layers.Layer):
     def __init__(self, output_num_tokens, eps=1e-6):
         super(AdaptiveTokenSampling, self).__init__()
         self.eps = eps
@@ -84,7 +83,7 @@ class AdaptiveTokenSampling(Layer):
         value_norms = tf.norm(value[..., 1:, :], axis=-1)
 
         # weigh the attention scores by the norm of the values, sum across all heads
-        cls_attn = einsum('b h n, b h n -> b n', cls_attn, value_norms)
+        cls_attn = tf.einsum('b h n, b h n -> b n', cls_attn, value_norms)
 
         # normalize to 1
         normed_cls_attn = cls_attn / (tf.reduce_sum(cls_attn, axis=-1, keepdims=True) + eps)
@@ -112,7 +111,6 @@ class AdaptiveTokenSampling(Layer):
             x = tf.sort(t)
             unique_sampled_token_ids_list.append(x)
 
-
         unique_sampled_token_ids = pad_sequences(unique_sampled_token_ids_list)
 
         # calculate the new mask, based on the padding
@@ -138,7 +136,7 @@ def gelu(x, approximate=False):
     else:
         return 0.5 * x * (1.0 + tf.math.erf(x / tf.cast(1.4142135623730951, x.dtype)))
 
-class GELU(Layer):
+class GELU(layers.Layer):
     def __init__(self, approximate=False):
         super(GELU, self).__init__()
         self.approximate = approximate
@@ -146,46 +144,45 @@ class GELU(Layer):
     def call(self, x, training=True):
         return gelu(x, self.approximate)
 
-class PreNorm(Layer):
+class PreNorm(layers.Layer):
     def __init__(self, fn):
         super(PreNorm, self).__init__()
-
-        self.norm = nn.LayerNormalization()
+        self.norm = layers.LayerNormalization()
         self.fn = fn
 
     def call(self, x, **kwargs):
         return self.fn(self.norm(x), **kwargs)
 
-class MLP(Layer):
+class MLP(layers.Layer):
     def __init__(self, dim, hidden_dim, dropout=0.0):
         super(MLP, self).__init__()
-        self.net = Sequential([
-            nn.Dense(units=hidden_dim),
+        self.net = keras.Sequential([
+            layers.Dense(units=hidden_dim),
             GELU(),
-            nn.Dropout(rate=dropout),
-            nn.Dense(units=dim),
-            nn.Dropout(rate=dropout)
+            layers.Dropout(rate=dropout),
+            layers.Dense(units=dim),
+            layers.Dropout(rate=dropout)
         ])
 
     def call(self, x, training=True):
         return self.net(x, training=training)
 
-class Attention(Layer):
+class Attention(layers.Layer):
     def __init__(self, dim, heads=8, dim_head=64, dropout=0.0, output_num_tokens=None):
         super(Attention, self).__init__()
         inner_dim = dim_head * heads
         self.heads = heads
         self.scale = dim_head ** -0.5
 
-        self.attend = nn.Softmax()
-        self.to_qkv = nn.Dense(units=inner_dim * 3, use_bias=False)
+        self.attend = layers.Softmax()
+        self.to_qkv = layers.Dense(units=inner_dim * 3, use_bias=False)
 
         self.output_num_tokens = output_num_tokens
         self.ats = AdaptiveTokenSampling(output_num_tokens) if exists(output_num_tokens) else None
 
-        self.to_out = Sequential([
-            nn.Dense(units=dim),
-            nn.Dropout(rate=dropout)
+        self.to_out = keras.Sequential([
+            layers.Dense(units=dim),
+            layers.Dropout(rate=dropout)
         ])
 
     def call(self, x, mask=None, training=True):
@@ -205,9 +202,8 @@ class Attention(Layer):
             dots = tf.where(~dots_mask, mask_value, dots)
 
         attn = self.attend(dots)
-
         sampled_token_ids = None
-
+        
         # if adaptive token sampling is enabled
         # and number of tokens is greater than the number of output tokens
         if exists(self.output_num_tokens) and (num_tokens - 1) > self.output_num_tokens:
@@ -219,7 +215,7 @@ class Attention(Layer):
 
         return out, mask, sampled_token_ids
 
-class Transformer(Layer):
+class Transformer(layers.Layer):
     def __init__(self, dim, depth, max_tokens_per_depth, heads, dim_head, mlp_dim, dropout=0.0):
         super(Transformer, self).__init__()
         assert len(max_tokens_per_depth) == depth, 'max_tokens_per_depth must be a tuple of length that is equal to the depth of the transformer'
@@ -252,12 +248,11 @@ class Transformer(Layer):
                 token_ids = batched_index_select(token_ids, sampled_token_ids, dim=1)
 
             x = x + attn_out
-
             x = ff(x, training=training) + x
 
         return x, token_ids
 
-class ViT(Model):
+class ViT(keras.Model):
     def __init__(self,
                  image_size, 
                  patch_size, 
@@ -280,22 +275,21 @@ class ViT(Model):
 
         num_patches = (image_height // patch_height) * (image_width // patch_width)
 
-        self.patch_embedding = Sequential([
+        self.patch_embedding = keras.Sequential([
             Rearrange('b (h p1) (w p2) c -> b (h w) (p1 p2 c)', p1=patch_height, p2=patch_width),
-            nn.Dense(units=dim)
+            layers.Dense(units=dim)
         ])
 
         self.pos_embedding = tf.Variable(initial_value=tf.random.normal([1, num_patches + 1, dim]))
         self.cls_token = tf.Variable(initial_value=tf.random.normal([1, 1, dim]))
-        self.dropout = nn.Dropout(rate=emb_dropout)
+        self.dropout = layers.Dropout(rate=emb_dropout)
 
         self.transformer = Transformer(dim, depth, max_tokens_per_depth, heads, dim_head, mlp_dim, dropout)
 
-        self.mlp_head = Sequential([
-            nn.LayerNormalization(),
-            nn.Dense(units=num_classes)
+        self.mlp_head = keras.Sequential([
+            layers.LayerNormalization(),
+            layers.Dense(units=num_classes)
         ])
-
 
     def call(self, img, return_sampled_token_ids=False, training=True, **kwargs):
         x = self.patch_embedding(img)
