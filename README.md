@@ -1,7 +1,6 @@
 # Vision Transformer Cookbook with Tensorflow
 <img src="./images/vit.gif" width="500px"></img>
 
-### 🔥 Code will be released at 2022.03.28 🔥
 ## Author
 * [Junho Kim](http://bit.ly/jhkim_resume)
 
