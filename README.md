@@ -129,7 +129,7 @@ img = tf.random.normal([2, 256, 256, 3])
 labels = tf.random.uniform(shape=[2, ], minval=0, maxval=1000, dtype=tf.int32)
 labels = tf.one_hot(labels, depth=1000, axis=-1)
 
-loss = distiller(img, labels)
+loss = distiller([img, labels])
 
 # after lots of training above ...
 
